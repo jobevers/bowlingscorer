@@ -13,7 +13,10 @@ def main():
 
     conn = sqlite3.connect(args.db)
     conn.row_factory = sqlite3.Row 
+    process_db(conn)
 
+
+def process_db(conn):
     # ['ID', 'Game', 'Frame', 'T1', 'T2', 'Foul1', 'Foul2', 'Split', 'Renzoku', 'Pin']
     rows = conn.execute('select * from T_Games where Frame <= 10').fetchall()
     df = pd.DataFrame(rows, columns=rows[0].keys())
