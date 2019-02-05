@@ -18,7 +18,15 @@ def main():
 
 def process_db(conn):
     # ['ID', 'Game', 'Frame', 'T1', 'T2', 'Foul1', 'Foul2', 'Split', 'Renzoku', 'Pin']
-    rows = conn.execute('select * from T_Games where Frame <= 10').fetchall()
+    rows = conn.execute("""
+select *
+from T_Games G
+inner join T_Event E
+on G.ID = E.ID
+where Frame <= 10
+and (
+  E.comment is null or 
+  (trim(lower(E.comment)) != 'low ball'))""").fetchall()
     df = pd.DataFrame(rows, columns=rows[0].keys())
     fba = df['T1'].mean()
     print(f'First Ball Average: {fba}')
@@ -103,8 +111,7 @@ def process_db(conn):
     missed_single_pins = n_single_pin_leaves - n_single_pin_conversions
     missed_single_pins_per_game = missed_single_pins / n_games
     better_average = missed_single_pins_per_game * (fba + 1)
-    print('SINGLE PIN CONVERSION IS THE EASIEST WAY TO IMPROVE YOUR AVERAGE!')
-    print(f'IF THIS WAS 100%, YOUR AVERAGE WOULD INCREASE BY: {better_average}')
+    print(f'If single pin conversion was 100%, your average would increase by: {better_average}')
 
 
 def sorted_single_pins_by_misses(leaves, conversions):
