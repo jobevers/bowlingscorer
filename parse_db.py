@@ -18,15 +18,14 @@ def main():
 
 def process_db(conn):
     # ['ID', 'Game', 'Frame', 'T1', 'T2', 'Foul1', 'Foul2', 'Split', 'Renzoku', 'Pin']
-    rows = conn.execute("""
+    query = """
 select *
 from T_Games G
 inner join T_Event E
 on G.ID = E.ID
 where Frame <= 10
-and (
-  E.comment is null or 
-  (trim(lower(E.comment)) != 'low ball'))""").fetchall()
+and (trim(lower(E.EventName)) != 'low ball')"""
+    rows = conn.execute(query).fetchall()
     df = pd.DataFrame(rows, columns=rows[0].keys())
     fba = df['T1'].mean()
     print(f'First Ball Average: {fba}')
